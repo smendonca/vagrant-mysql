@@ -1,0 +1,29 @@
+#!/bin/bash
+
+sudo apt-get --assume-yes update >/dev/null
+sudo apt-get --assume-yes upgrade >/dev/null
+
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ROOTPASSWORD'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ROOTPASSWORD'
+
+sudo apt-get --assume-yes install mysql-server-5.5
+
+cat << 'EOF' > /tmp/local.cnf
+[mysqld]
+max_connections     = 10
+bind-address        = 0.0.0.0
+query_cache_size    = 64
+key_buffer_size     = 64
+tmp_table_size      = 32
+max_heap_table_size = 32
+table_cache         = 1000
+EOF
+
+sudo mv /tmp/local.cnf /etc/mysql/conf.d/local.cnf
+sudo service mysql restart
+
+echo "GRANT ALL ON *.* TO 'myuser'@'%' IDENTIFIED BY 'MyUSERPASSWORD'" | mysql -uroot -pROOTPASSWORD
+echo "FLUSH PRIVILEGES" | mysql -uroot -pROOTPASSWORD
+
+wget -q -O ~/mysqltuner.pl https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl >/dev/null
+chmod +x ~/mysqltuner.pl
