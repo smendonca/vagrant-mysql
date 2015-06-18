@@ -2,7 +2,7 @@
 # # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = '2'
-VAGRANT_IP = '172.16.8.4'
+VAGRANT_IP = '172.16.8.9'
 VAGRANT_NAME = 'vagrant-mysql'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
