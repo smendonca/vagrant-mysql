@@ -10,13 +10,15 @@ sudo apt-get --assume-yes install mysql-server-5.5
 
 cat << 'EOF' > /tmp/local.cnf
 [mysqld]
-max_connections     = 10
-bind-address        = 0.0.0.0
-query_cache_size    = 64
-key_buffer_size     = 64
-tmp_table_size      = 32
-max_heap_table_size = 32
-table_cache         = 1000
+max_connections         = 15
+bind-address            = 0.0.0.0
+innodb_buffer_pool_size = 1024M
+key_buffer              = 1024M
+query_cache_size        = 128
+key_buffer_size         = 128
+tmp_table_size          = 64
+max_heap_table_size     = 64
+table_cache             = 2000
 EOF
 
 sudo mv /tmp/local.cnf /etc/mysql/conf.d/local.cnf
