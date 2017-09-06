@@ -1,10 +1,18 @@
 #!/bin/bash
 
-sudo apt-get --assume-yes update >/dev/null
-sudo apt-get --assume-yes upgrade >/dev/null
+export LANGUAGE='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
+export LANG='en_US.UTF-8'
 
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ROOTPASSWORD'
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ROOTPASSWORD'
+sudo locale-gen en_US.UTF-8
+
+sudo ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
+
+sudo apt-get --assume-yes update
+sudo apt-get --assume-yes upgrade
+
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
 
 sudo apt-get --assume-yes install mysql-server-5.5
 
@@ -12,20 +20,16 @@ cat << 'EOF' > /tmp/local.cnf
 [mysqld]
 max_connections         = 15
 bind-address            = 0.0.0.0
-innodb_buffer_pool_size = 1024M
-key_buffer              = 1024M
-query_cache_size        = 128
-key_buffer_size         = 128
-tmp_table_size          = 64
-max_heap_table_size     = 64
+innodb_buffer_pool_size = 2048M
+key_buffer              = 2048M
+query_cache_size        = 128M
+key_buffer_size         = 128M
+tmp_table_size          = 64M
+max_heap_table_size     = 64M
 table_cache             = 2000
 EOF
 
 sudo mv /tmp/local.cnf /etc/mysql/conf.d/local.cnf
-sudo service mysql restart
+sudo /etc/init.d/mysql restart
 
-echo "GRANT ALL ON *.* TO 'myuser'@'%' IDENTIFIED BY 'MyUSERPASSWORD'" | mysql -uroot -pROOTPASSWORD
-echo "FLUSH PRIVILEGES" | mysql -uroot -pROOTPASSWORD
-
-wget -q -O ~/mysqltuner.pl https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl >/dev/null
-chmod +x ~/mysqltuner.pl
+mysql -u root -ppassword -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION; FLUSH PRIVILEGES;"
